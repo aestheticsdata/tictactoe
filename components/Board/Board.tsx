@@ -8,15 +8,21 @@ const Board = () => {
     [0, 0, 0],
     [0, 0, 0],
   ];
+  const randomPlayer = () => Math.floor(Math.random()*100) < 50 ? 1 : 2;
   const [checkBoard, setCheckBoard] = useState(initialCheckboard);
-  const [player, setPlayer] = useState(1);
+  const [player, setPlayer] = useState(randomPlayer());
+
+  const winStep = () => {
+    alert(`player number ${player}  has won`);
+    setCheckBoard(initialCheckboard);
+    setPlayer(randomPlayer);
+  }
 
   const calculateWinner = (chkboard: number[][]) => {
     for (let i = 0; i < 3; i++) {
       // horizontal lines
       if (chkboard[i].every(item => item === player)) {
-        alert('player number' + player + 'has won');
-        setCheckBoard(initialCheckboard);
+        winStep();
       }
 
       // vertical lines
@@ -24,8 +30,7 @@ const Board = () => {
         if (curr[i] === player) acc += 5;
         return acc;
       }, 0) === 15) {
-        alert('player number' + player + 'has won');
-        setCheckBoard(initialCheckboard);
+        winStep();
       }
 
     }
@@ -35,16 +40,14 @@ const Board = () => {
       if (curr[idx] === player) acc += 5;
       return acc;
     }, 0) === 15) {
-      alert('player number' + player + 'has won');
-      setCheckBoard(initialCheckboard);
+      winStep();
     }
 
     if (chkboard.reduce((acc, curr, idx) => {
       if (curr[2-idx] === player) acc += 5;
       return acc;
     }, 0) === 15) {
-      alert('player number' + player + 'has won');
-      setCheckBoard(initialCheckboard);
+      winStep();
     }
   }
 
@@ -62,6 +65,7 @@ const Board = () => {
 
   return (
     <StyledBoard>
+      <div>Player {player === 1 ? 'x' : 'o'}</div>
       <div onMouseDown={mouseHandler}>
         {
           checkBoard.map((row, idx1) => {
