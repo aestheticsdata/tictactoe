@@ -9,7 +9,7 @@ const Box = ({value, id}: Box): JSX.Element => {
   return (
     <>
       <StyledBox className={`id-${id}`}>
-        <span>
+        <span className="x-o">
           {value !== 0  && (value === 1 ? 'x' : 'o')}
         </span>
       </StyledBox>
