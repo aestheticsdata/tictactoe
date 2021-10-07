@@ -1,28 +1,43 @@
-import StyledBoard from "./StyledBoard";
+import StyledBoard from './StyledBoard';
 import { useState, useEffect } from "react";
 import Box from './Box/Box';
 
 const Board = () => {
-  const initialCheckboard = [
+  const initialCheckboard: number[][] = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
   ];
-  const randomPlayer = () => Math.floor(Math.random()*100) < 50 ? 1 : 2;
-  const [checkBoard, setCheckBoard] = useState(initialCheckboard);
-  const [player, setPlayer] = useState(randomPlayer());
+  const randomPlayer = (): number => Math.floor(Math.random()*100) < 50 ? 1 : 2;
+  const [checkBoard, setCheckBoard] = useState<number[][]>(initialCheckboard);
+  const [player, setPlayer] = useState<number>(-1);
+  const [displayWinner, setDisplayWinner] = useState<Boolean>(false);
+
+  const reset = () => {
+    setCheckBoard(initialCheckboard);
+    setDisplayWinner(false);
+    setPlayer(randomPlayer);
+  };
 
   const winStep = () => {
-    alert(`player number ${player}  has won`);
-    setCheckBoard(initialCheckboard);
-    setPlayer(randomPlayer);
+    setDisplayWinner(true);
+    setTimeout(() => {
+      reset();
+    }, 2000);
   }
 
-  const calculateWinner = (chkboard: number[][]) => {
+  const calculateWinner = (chkboard: number[][]): boolean | undefined => {
+    if (chkboard.flat().every(box => box !== 0)) {
+      alert('non winner');
+      reset();
+      return;
+    }
+
     for (let i = 0; i < 3; i++) {
       // horizontal lines
       if (chkboard[i].every(item => item === player)) {
         winStep();
+        return true;
       }
 
       // vertical lines
@@ -31,6 +46,7 @@ const Board = () => {
         return acc;
       }, 0) === 15) {
         winStep();
+        return true;
       }
 
     }
@@ -41,6 +57,7 @@ const Board = () => {
       return acc;
     }, 0) === 15) {
       winStep();
+      return true;
     }
 
     if (chkboard.reduce((acc, curr, idx) => {
@@ -48,6 +65,7 @@ const Board = () => {
       return acc;
     }, 0) === 15) {
       winStep();
+      return true;
     }
   }
 
@@ -59,13 +77,20 @@ const Board = () => {
   }
 
   useEffect(() => {
-    calculateWinner(checkBoard);
-    setPlayer((player << 1) % 3); // alternate player 1 and 2
+    const isWin = calculateWinner(checkBoard);
+    if (player !== -1 && !isWin) {
+      setPlayer((player << 1) % 3); // alternate player 1 and 2
+    }
   }, [checkBoard]);
+
+  useEffect(() => {
+    setPlayer(randomPlayer());
+  }, []);
+
 
   return (
     <StyledBoard>
-      <div>Player {player === 1 ? 'x' : 'o'}</div>
+      <div className="player-name">Player {player === 1 ? 'x' : 'o'}</div>
       <div onMouseDown={mouseHandler}>
         {
           checkBoard.map((row, idx1) => {
@@ -73,16 +98,27 @@ const Board = () => {
               <div key={idx1} className="row">
                 {
                   row.map((value, idx2) => {
+                    const id = `${idx1}-${idx2}`;
                     return (
-                      <div key={`${idx1}-${idx2}`} className="box">
-                        <Box id={`${idx1}-${idx2}`} value={value} />
-                      </div>
+                      <Box
+                        key={id}
+                        id={id}
+                        value={value}
+                      />
                     )
                   })
                 }
               </div>
             )
           })
+        }
+      </div>
+      <div className="winner">
+        {
+          displayWinner &&
+            <span>
+              the winner is { player === 1 ? 'x' : 'o' }
+            </span>
         }
       </div>
     </StyledBoard>
