@@ -1,1 +1,3 @@
 # tictactoe
+
+NextJS playground
